@@ -10,6 +10,7 @@ import gin
 import numpy as np
 from numpy.random import uniform
 
+# import infinigen.assets.static_assets as static_assets
 from infinigen.assets.objects import (
     appliances,
     bathroom,
@@ -51,6 +52,58 @@ def sample_home_constraint_params():
         has_cocktail_tables=uniform() < 0.15,
         has_kitchen_barstools=uniform() < 0.15,
     )
+
+
+"""@gin.configurable
+def home_room_constraints_test():
+    constraints = OrderedDict()
+    score_terms = OrderedDict()
+
+    constants = RoomConstants(fixed_contour=False)
+    rooms = cl.scene()[Semantics.RoomContour]
+
+    constraints["node_gen"] = (
+        rooms[Semantics.Root].all(
+            lambda r: rooms[Semantics.LivingRoom]
+            .related_to(r, cl.Traverse())
+            .count()
+            .in_range(1, 2, mean=1.1)
+        )
+        * rooms[Semantics.LivingRoom].all(
+            lambda r: rooms[Semantics.Hallway]
+            .related_to(r, cl.Traverse())
+            .count()
+            .in_range(0, 2, mean=1.2)
+        )
+        * rooms[Semantics.LivingRoom].all(
+            lambda r: rooms[Semantics.Bedroom]
+            .related_to(r, cl.Traverse())
+            .count()
+            .in_range(0, 2, mean=1.2)
+        )
+    )
+
+    node_constraint = (
+            (rooms[Semantics.LivingRoom].count() >= 1)
+            * (rooms[Semantics.Bedroom].count() >= 1)
+        )
+
+    constraints["node"] = node_constraint
+
+    all_rooms = cl.scene()[Semantics.RoomContour]
+    rooms = all_rooms[-Semantics.Exterior][-Semantics.Staircase]
+
+    def exterior(r):
+        return r.same_level()[Semantics.Exterior]
+
+    def pholder(r):
+        return r.same_level()[Semantics.Staircase]
+
+    # to do
+
+    return cl.Problem(
+        constraints=constraints, score_terms=score_terms, constants=constants
+    )"""
 
 
 @gin.configurable
@@ -240,7 +293,9 @@ def home_room_constraints(fast=False):
                 .count()
                 .in_range(1, 1, mean=1)
             )
-            * rooms[Semantics.LivingRoom].all(
+        )
+
+        """* rooms[Semantics.LivingRoom].all(
                 lambda r: rooms[Semantics.Bathroom]
                 .related_to(r, cl.Traverse())
                 .count()
@@ -257,8 +312,7 @@ def home_room_constraints(fast=False):
                 .related_to(r, cl.Traverse())
                 .count()
                 .in_range(1, 1, mean=1.0)
-            )
-        )
+            )"""
 
     # endregion
 
@@ -327,11 +381,11 @@ def home_room_constraints(fast=False):
     if fast:
         node_constraint = (
             (rooms[Semantics.Entrance].count() >= 1)
-            * (rooms[Semantics.StaircaseRoom].count() == 0)
             * (rooms[Semantics.LivingRoom].count() >= 1)
-            * (rooms[Semantics.Kitchen].count() >= 1)
             * (rooms[Semantics.Bedroom].count() >= 1)
-            * (rooms[Semantics.Bathroom].count() >= 1)
+            # * (rooms[Semantics.Kitchen].count() >= 1)
+            # * (rooms[Semantics.StaircaseRoom].count() == 0)
+            # * (rooms[Semantics.Bathroom].count() >= 1)
         )
 
     constraints["node"] = node_constraint
@@ -744,11 +798,11 @@ def home_furniture_constraints():
     # region ALL LIGHTING RULES
 
     lights = obj[Semantics.Lighting]
-    floor_lamps = (
+    """floor_lamps = (
         lights[lamp.FloorLampFactory]
         .related_to(rooms, cu.on_floor)
         .related_to(rooms, cu.against_wall)
-    )
+    )"""
     constraints["lighting"] = rooms.all(
         lambda r: (
             # dont put redundant lights close to eachother (including lamps, ceiling lights, etc)
@@ -854,16 +908,17 @@ def home_furniture_constraints():
     constraints["bedroom"] = bedrooms.all(
         lambda r: (
             beds.related_to(r).count().in_range(1, 2)
-            * sidetables.related_to(beds.related_to(r)).count().in_range(0, 2)
-            * rugs.related_to(r).count().in_range(0, 1)
-            * desks.related_to(r).count().in_range(0, 1)
-            * storage_freestanding.related_to(r).count().in_range(2, 5)
-            * floor_lamps.related_to(r).count().in_range(0, 1)
-            * storage.related_to(r).all(
-                lambda s: (
-                    obj[Semantics.OfficeShelfItem].related_to(s, cu.on).count() >= 0
-                )
-            )
+            # * sidetables.related_to(beds.related_to(r)).count().equals(0)
+            # * rugs.related_to(r).count().equals(0)
+            # * desks.related_to(r).count().in_range(0, 1)
+            # * storage_freestanding.related_to(r).count().in_range(0, 1)
+            # * storage_freestanding.related_to(r).count().in_range(2, 5)
+            # * floor_lamps.related_to(r).count().in_range(0, 1)
+            # * storage.related_to(r).all(
+            # lambda s: (
+            # obj[Semantics.OfficeShelfItem].related_to(s, cu.on).count() >= 0
+            # )
+            # )
         )
     )
 
@@ -871,7 +926,7 @@ def home_furniture_constraints():
         lambda r: (
             beds.related_to(r)
             .mean(lambda t: cl.distance(r, doors))
-            .maximize(weight=0.5)
+            .maximize(weight=0.1)
         )
     )
 
@@ -1084,6 +1139,7 @@ def home_furniture_constraints():
 
     livingrooms = rooms[Semantics.LivingRoom].excludes(cu.room_types)
     sofas = furniture[seating.SofaFactory]
+    # sofas.append(furniture[static_assets.StaticSofaFactory]) #rd
     tvstands = wallfurn[shelves.TVStandFactory]
     coffeetables = furniture[tables.CoffeeTableFactory]
 
@@ -1269,6 +1325,7 @@ def home_furniture_constraints():
     # region DININGROOMS
 
     diningtables = furniture[Semantics.Table][tables.TableDiningFactory]
+    # diningtables.append(furniture[Semantics.Table][static_assets.StaticTableFactory])
     diningchairs = furniture[Semantics.Chair][seating.ChairFactory]
     constraints["dining_chairs"] = rooms.all(
         lambda r: (

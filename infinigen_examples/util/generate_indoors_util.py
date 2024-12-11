@@ -44,7 +44,7 @@ def within_bbox_2d(verts, bbox):
 def create_outdoor_backdrop(
     terrain: Terrain,
     house_bbox: tuple,
-    cameras: list[bpy.types.Object],
+    cam,
     p: pipeline.RandomStageExecutor,
     params: dict,
 ):
@@ -86,9 +86,10 @@ def create_outdoor_backdrop(
 
     terrain_inview, *_ = split_in_view.split_inview(
         main_terrain,
-        cameras,
         verbose=True,
         outofview=False,
+        print_areas=True,
+        cam=cam,
         vis_margin=2,
         dist_max=params["near_distance"],
         hide_render=True,

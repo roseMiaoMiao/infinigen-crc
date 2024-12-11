@@ -46,13 +46,12 @@ from infinigen.core.util.test_utils import (
     load_txt_list,
 )
 from infinigen.terrain import Terrain
-from infinigen_examples.constraints import home as home_constraints
-
-from . import (
+from infinigen_examples import (
     generate_nature,  # noqa F401 # needed for nature gin configs to load  # noqa F401 # needed for nature gin configs to load
 )
-from .constraints import util as cu
-from .util.generate_indoors_util import (
+from infinigen_examples.constraints import home as home_constraints
+from infinigen_examples.constraints import util as cu
+from infinigen_examples.util.generate_indoors_util import (
     apply_greedy_restriction,
     create_outdoor_backdrop,
     hide_other_rooms,
@@ -155,7 +154,8 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
     p.run_stage("sky_lighting", lighting.sky_lighting.add_lighting, use_chance=False)
 
     consgraph = home_constraints.home_furniture_constraints()
-    consgraph_rooms = home_constraints.home_room_constraints()
+    consgraph_rooms = home_constraints.home_room_constraints(True)
+    # consgraph_rooms = home_constraints.home_room_constraints_test()
     constants = consgraph_rooms.constants
 
     stages = default_greedy_stages()
@@ -187,6 +187,8 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
         return solver.solve_rooms(scene_seed, consgraph_rooms, stages["rooms"])
 
     state: state_def.State = p.run_stage("solve_rooms", solve_rooms, use_chance=False)
+
+    state.print()
 
     def solve_stage_name(stage_name: str, group: str, **kwargs):
         assigments = greedy.iterate_assignments(
@@ -252,8 +254,6 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
             camera_rigs,
             scene_preprocessed=scene_preprocessed,
             init_surfaces=solved_floor_surface,
-            nonroom_objs=nonroom_objs,
-            terrain_coverage_range=None,  # do not filter cameras by terrain visibility, even if nature scenetype configs request this
         )
         butil.delete(solved_floor_surface)
         return scene_preprocessed
@@ -261,13 +261,7 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
     scene_preprocessed = p.run_stage("pose_cameras", pose_cameras, use_chance=False)
 
     def animate_cameras():
-        cam_util.animate_cameras(
-            camera_rigs,
-            solved_bbox,
-            scene_preprocessed,
-            pois=[],
-            terrain_coverage_range=None,  # same as above - do not filter by terrain visiblity when indoors
-        )
+        cam_util.animate_cameras(camera_rigs, solved_bbox, scene_preprocessed, pois=[])
 
         frames_folder = output_folder.parent / "frames"
         animated_cams = [cam for cam in camera_rigs if cam.animation_data is not None]
@@ -317,7 +311,7 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
 
         placer = FloatingObjectPlacement(
             generators=facs,
-            camera=camera_rigs[0].children[0],
+            camera=cam_util.get_camera(0, 0),
             background_objs=list(pholder_cutters.objects) + list(pholder_rooms.objects),
             collision_objs=list(pholder_objs.objects),
         )
@@ -396,6 +390,8 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
     # state.print()
     state.to_json(output_folder / "solve_state.json")
 
+    cam = cam_util.get_camera(0, 0)
+
     def turn_off_lights():
         for o in bpy.data.objects:
             if o.type == "LIGHT" and not o.data.cycles.is_portal:
@@ -436,7 +432,7 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
         create_outdoor_backdrop,
         terrain,
         house_bbox=house_bbox,
-        cameras=[rig.children[0] for rig in camera_rigs],
+        cam=cam,
         p=p,
         params=overrides,
         use_chance=False,
@@ -559,7 +555,6 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--debug", type=str, nargs="*", default=None)
 
     args = init.parse_args_blender(parser)
-
     logging.getLogger("infinigen").setLevel(logging.INFO)
     logging.getLogger("infinigen.core.nodes.node_wrangler").setLevel(logging.CRITICAL)
 

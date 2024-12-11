@@ -72,3 +72,6 @@ blends
 
 process_mesh
 worldgen
+
+outputs/
+*.Zone.Identifier

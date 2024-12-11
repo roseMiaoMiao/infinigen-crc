@@ -23,15 +23,8 @@ from pathlib import Path
 import bpy
 import gin
 import numpy as np
+import submitit
 from PIL import Image
-
-try:
-    import submitit
-except ImportError:
-    logging.warning(
-        f"Failed to import submitit, {Path(__file__).name} will crash if slurm job is requested"
-    )
-    submitit = None
 
 # ruff: noqa: E402
 # NOTE: logging config has to be before imports that use logging
@@ -174,7 +167,7 @@ def build_scene_surface(args, factory_name, idx):
             if not hasattr(scatter, "apply"):
                 raise ValueError(f"{scatter} has no apply()")
 
-            if args.dryrun:
+            if args.dryun:
                 return
 
             bpy.ops.mesh.primitive_grid_add(
@@ -243,25 +236,6 @@ def build_and_save_asset(payload: dict):
 
     output_folder.mkdir(exist_ok=True)
 
-    init.apply_gin_configs(
-        ["infinigen_examples/configs_indoor", "infinigen_examples/configs_nature"],
-        configs=args.configs,
-        overrides=args.overrides,
-        skip_unknown=True,
-    )
-
-    if args.debug is not None:
-        for name in logging.root.manager.loggerDict:
-            if not name.startswith("infinigen"):
-                continue
-            if len(args.debug) == 0 or any(name.endswith(x) for x in args.debug):
-                logging.getLogger(name).setLevel(logging.DEBUG)
-
-    init.configure_blender()
-
-    if args.gpu:
-        init.configure_render_cycles()
-
     logger.info(f"Building scene for {factory_name} {idx}")
 
     if args.seed > 0:
@@ -316,9 +290,8 @@ def build_and_save_asset(payload: dict):
         )
 
     if args.cam_center > 0 and asset:
-        co = read_base_co(asset)
-        location = (np.amin(co, 0) + np.amax(co, 0)) / 2
-        center.location = (np.array(asset.matrix_world) @ np.array([*location, 1]))[:-1]
+        co = read_base_co(asset) + asset.location
+        center.location = (np.amin(co, 0) + np.amax(co, 0)) / 2
         center.location[-1] += args.cam_zoff
 
     if args.cam_dist <= 0 and asset:
@@ -455,9 +428,6 @@ def mapfunc(
         with Pool(args.n_workers) as p:
             return list(p.imap(f, its))
     else:
-        if submitit is None:
-            raise ValueError("submitit not imported, cannot use --slurm")
-
         executor = submitit.AutoExecutor(folder=args.output_folder / "logs")
 
         slurm_additional_parameters = {}
@@ -483,6 +453,25 @@ def mapfunc(
 def main(args):
     bpy.context.window.workspace = bpy.data.workspaces["Geometry Nodes"]
 
+    init.apply_gin_configs(
+        ["infinigen_examples/configs_indoor", "infinigen_examples/configs_nature"],
+        configs=args.configs,
+        overrides=args.overrides,
+        skip_unknown=True,
+    )
+
+    if args.debug is not None:
+        for name in logging.root.manager.loggerDict:
+            if not name.startswith("infinigen"):
+                continue
+            if len(args.debug) == 0 or any(name.endswith(x) for x in args.debug):
+                logging.getLogger(name).setLevel(logging.DEBUG)
+
+    init.configure_blender()
+
+    if args.gpu:
+        init.configure_render_cycles()
+
     if args.output_folder is None:
         outputs = Path("outputs")
         assert outputs.exists(), outputs
@@ -495,7 +484,8 @@ def main(args):
 
     if len(factories) == 1 and factories[0].endswith(".txt"):
         factories = [
-            f.split(".")[-1] for f in load_txt_list(factories[0], skip_sharp=False)
+            f.split(".")[-1] 
+            for f in load_txt_list(factories[0], skip_sharp=False)
         ]
     else:
         assert not any(f.endswith(".txt") for f in factories)
