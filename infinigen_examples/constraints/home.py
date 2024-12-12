@@ -926,7 +926,7 @@ def home_furniture_constraints():
         lambda r: (
             beds.related_to(r)
             .mean(lambda t: cl.distance(r, doors))
-            .maximize(weight=0.1)
+            .maximize(weight=0.5)
         )
     )
 

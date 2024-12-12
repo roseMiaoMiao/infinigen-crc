@@ -226,21 +226,25 @@ class FloorPlanStateBuilder:
 
         # Create room contours
         living_room = sg.box(0, 0, 4, 5)
-        # bedroom = sg.box(4, 0, 7, 4)
-        bedroom = sg.box(4, 0, 6, 3)
+        bedroom = sg.box(4, 0, 7, 4)
+        # bedroom = sg.box(4, 0, 6, 3)
+        bathroom = sg.box(0, 0, -3, 2.5)
+        kitchen = sg.box(0, 2.5, -3, 5)
 
         # Add rooms
         self.add_room("living-room_0/0", living_room, t.Semantics.LivingRoom)
         self.add_room("bedroom_0/0", bedroom, t.Semantics.Bedroom)
+        self.add_room("bathroom_0/0", bathroom, t.Semantics.Bathroom)
+        self.add_room("kitchen_0/0", kitchen, t.Semantics.Kitchen)
 
         # Add doors
-        """self.add_opening(Opening(
+        self.add_opening(Opening(
             #position=(3.5, 2, 4.5, 3),
-            position=(4, 1.3, 4.5, 2.3),
+            position=(3.5, 2.3, 4.5, 3.5),
             type='door',
-            connected_rooms=['bedroom_0/0', 'living-room_0/0'],
+            connected_rooms=['living-room_0/0','bedroom_0/0'],
             name='door'
-        ))"""
+        ))
         self.add_opening(
             Opening(
                 position=(1.5, 4.5, 2.5, 5.5),
@@ -249,15 +253,31 @@ class FloorPlanStateBuilder:
                 name="entrance",
             )
         )
+        self.add_opening(
+            Opening(
+                position=(-0.5, 1.3, 0.5, 2.3),
+                type="door",
+                connected_rooms=['living-room_0/0','bathroom_0/0'],
+                name="door",
+            )
+        )
+        self.add_opening(
+            Opening(
+                position=(-0.5, 2.7, 0.5, 3.7),
+                type="door",
+                connected_rooms=['living-room_0/0','kitchen_0/0'],
+                name="door",
+            )
+        )
 
         # Add windows
         window_positions = [
             # Bedroom windows - on right wall
-            # (5.5, 0.5, 6.5, 1.5),  # Lower window
-            # (6.5, 2.5, 7.5, 3.5),  # Upper window
+            (5.5, 0.5, 6.5, 1.5),  # Lower window
+            (6.5, 2.5, 7.5, 3.5),  # Upper window
             # Living room windows - on left wall
-            (-0.5, 1.0, 0.5, 2.0),  # Lower window
-            (-0.5, 3.0, 0.5, 4.0),  # Upper window
+            #(-0.5, 1.0, 0.5, 2.0),  # Lower window
+            #(-0.5, 3.0, 0.5, 4.0),  # Upper window
         ]
 
         for pos in window_positions:

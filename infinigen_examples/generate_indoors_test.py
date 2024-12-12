@@ -255,9 +255,9 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
     )
     house_bbox = (np.min(house_bbox, axis=0), np.max(house_bbox, axis=0))
 
-    """camera_rigs = placement.camera.spawn_camera_rigs()
+    camera_rigs = placement.camera.spawn_camera_rigs()
 
-    def pose_cameras():
+    """def pose_cameras():
         nonroom_objs = [
             o.obj for o in state.objs.values() if t.Semantics.Room not in o.tags
         ]
