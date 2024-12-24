@@ -648,7 +648,7 @@ def home_furniture_constraints():
         )
     )
 
-    constraints["storage"] = rooms.all(
+    '''constraints["storage"] = rooms.all(
         lambda r: (storage_freestanding.related_to(r).count().in_range(1, 7))
     )
     score_terms["storage"] = rooms.mean(
@@ -660,7 +660,7 @@ def home_furniture_constraints():
                 weight=5
             )
         )
-    )
+    )'''
 
     # endregion furntiure
 
@@ -798,11 +798,11 @@ def home_furniture_constraints():
     # region ALL LIGHTING RULES
 
     lights = obj[Semantics.Lighting]
-    """floor_lamps = (
+    floor_lamps = (
         lights[lamp.FloorLampFactory]
         .related_to(rooms, cu.on_floor)
         .related_to(rooms, cu.against_wall)
-    )"""
+    )
     constraints["lighting"] = rooms.all(
         lambda r: (
             # dont put redundant lights close to eachother (including lamps, ceiling lights, etc)
@@ -903,22 +903,21 @@ def home_furniture_constraints():
 
     # region BEDROOMS
     bedrooms = rooms[Semantics.Bedroom].excludes(cu.room_types)
-    beds = wallfurn[Semantics.Bed]
+    beds = wallfurn[Semantics.Bed].related_to(rooms,cu.side_against_wall)
 
     constraints["bedroom"] = bedrooms.all(
         lambda r: (
-            beds.related_to(r).count().in_range(1, 2)
-            # * sidetables.related_to(beds.related_to(r)).count().equals(0)
-            # * rugs.related_to(r).count().equals(0)
-            # * desks.related_to(r).count().in_range(0, 1)
-            # * storage_freestanding.related_to(r).count().in_range(0, 1)
-            # * storage_freestanding.related_to(r).count().in_range(2, 5)
-            # * floor_lamps.related_to(r).count().in_range(0, 1)
-            # * storage.related_to(r).all(
-            # lambda s: (
-            # obj[Semantics.OfficeShelfItem].related_to(s, cu.on).count() >= 0
-            # )
-            # )
+            beds.related_to(r,cu.side_against_wall).count().equals(1)
+            * sidetables.related_to(beds.related_to(r)).equals(0)
+            * rugs.related_to(r).count().equals(0)
+            * desks.related_to(r).count().equals(0)
+            * storage_freestanding.related_to(r).count().equals(0)
+            * floor_lamps.related_to(r).count().equals(0)
+            * storage.related_to(r).all(
+                lambda s: (
+                    obj[Semantics.OfficeShelfItem].related_to(s, cu.on).count() == 0
+                )
+            )
         )
     )
 

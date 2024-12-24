@@ -315,9 +315,9 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
         solve_stage_name("obj_ontop_obj", "small", addition_weight_scalar=3)
         solve_stage_name("obj_on_support", "small", restrict_moves=["addition"])
 
-    p.run_stage("solve_small", solve_small, use_chance=False, default=state)
+    p.run_stage("solve_small", solve_small, use_chance=False, default=state)"""
 
-    solver.optim.save_stats(output_folder / "optim_records.csv")"""
+    solver.optim.save_stats(output_folder / "optim_records.csv")
 
     p.run_stage(
         "populate_assets", populate.populate_state_placeholders, state, use_chance=False
@@ -587,5 +587,5 @@ if __name__ == "__main__":
                 continue
             if len(args.debug) == 0 or any(name.endswith(x) for x in args.debug):
                 logging.getLogger(name).setLevel(logging.DEBUG)
-
+    
     main(args)

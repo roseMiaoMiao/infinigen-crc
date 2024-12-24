@@ -10,6 +10,9 @@ import logging
 from collections import defaultdict, deque
 from collections.abc import Iterable, Mapping
 
+from dataclasses import dataclass
+from typing import List, Tuple
+
 import bpy
 import gin
 import numpy as np
@@ -175,6 +178,12 @@ def max_mls(mls):
             coords.append((x, y, x_, y_))
     return coords[np.argmax(lengths)]
 
+@dataclass
+class Opening:
+    position: Tuple[float,float,float,float] # x1, y1, x2, y2
+    type: str # 'door' or 'window'
+    connected_rooms: List[str] # room names this opening connects/belongs to
+    name: str = None  # optional custom name
 
 @gin.configurable
 class BlueprintSolidifier:
