@@ -148,6 +148,8 @@ class Solver:
         restrict_moves: list[str] = None,
         addition_weight_scalar: float = 1.0,
     ):
+        ####debug for "gin config note override issue"############
+        logger.info(f"n_steps passed to Solver.solve_objects: {n_steps}")
         moves = self._configure_move_weights(
             restrict_moves, addition_weight_scalar=addition_weight_scalar
         )

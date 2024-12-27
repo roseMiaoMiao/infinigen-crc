@@ -1,0 +1,44 @@
+blender/4.2/python/lib/python3.11/site-packages/gin/resource_reader.py:37:  logging.info('gin-config opened resource file:%s', path)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:46:    @gin.configurable
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:50:    @gin.configurable
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:54:    @gin.configurable
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:60:    martini/mix_cocktail.ingredients = ['gin', 'vermouth', 'twist of lemon']
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:61:    gin_and_tonic/mix_cocktail.ingredients = ['gin', 'tonic water']
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:182:    self._symbol_table['gin'] = _GinBuiltins()
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:183:    self._symbol_source['gin'] = None
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:208:        if name == 'gin':
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:210:              f'The `gin` symbol is reserved; cannot bind import statement '
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:211:              f'"{statement.format()}" to `gin`. Use an alias for the import '
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:401:_CONSTANTS['gin.REQUIRED'] = REQUIRED
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:563:    # This approach enables @gin.register and gin.external_configurable(), and
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:565:    # @gin.configurable because the decorated class returned below can interact
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:619:    # and permits reliable subclassing of @gin.configurable decorated classes.
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:851:        return ConfigurableReference(name + '/gin.constant', True)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:854:    return ConfigurableReference(name + '/gin.macro', True)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:1005:    _CONSTANTS['gin.REQUIRED'] = REQUIRED
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:1391:  gin.get_bindings('MyParams') == {'kwarg0': 123}
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:1430:      no-op for functions annotated with `@gin.configurable`);
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:1491:            'gin.REQUIRED is not allowed for unnamed (vararg) parameters. If '
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:1672:               '    gin.enter_interactive_mode()')
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2265:        gin.parse_config(bindings)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2273:      gin.parse_config(bindings)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2281:      gin.parse_config(bindings)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2292:      gin.parse_config(bindings, skip_unknown=True)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2328:            bind_parameter((macro_name, 'gin.macro', 'value'), value)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2439:      gin files.
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2471:        gin.parse_config_file(config_file, skip_configurables)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2472:      gin.parse_config(bindings, skip_configurables)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2474:        gin.finalize()
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2557:  Once the config has been locked by `gin.finalize`, it can only be modified
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2562:        gin.bind_parameter(...)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2631:  """Registers `fn` as a hook that will run during `gin.finalize`.
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2692:@register(module='gin')
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2698:@register('constant', module='gin')
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2704:@register(module='gin')
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2727:      gin.constant('THE_ANSWER', 42)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2741:      gin.constant('some.modules.PI', 3.14159)
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2834:            fmt = '{} set to `%gin.REQUIRED` but not subsequently overridden.'
+blender/4.2/python/lib/python3.11/site-packages/gin/config.py:2848:      be the output of `gin.config_str()` or `gin.operative_config_str()`.
+blender/4.2/python/lib/python3.11/site-packages/gin/tf/utils.py:75:        will be {base_name}-{global_step}.gin; when False the filename will be
+blender/4.2/python/lib/python3.11/site-packages/gin/tf/utils.py:76:        {base_name}.gin.
+blender/4.2/python/lib/python3.11/site-packages/gin/tf/utils.py:110:          tag='gin/' + self._base_name,

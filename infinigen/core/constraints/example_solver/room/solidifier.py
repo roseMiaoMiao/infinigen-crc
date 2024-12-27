@@ -9,7 +9,6 @@
 import logging
 from collections import defaultdict, deque
 from collections.abc import Iterable, Mapping
-
 from dataclasses import dataclass
 from typing import List, Tuple
 
@@ -33,6 +32,12 @@ from infinigen.assets.utils.shapes import buffer, polygon2obj, simplify_polygon
 from infinigen.core import tagging
 from infinigen.core import tags as t
 from infinigen.core.constraints import constraint_language as cl
+from infinigen.core.constraints.example_solver.room.base import (
+    RoomGraph,
+    room_type,
+    valid_rooms,
+)
+from infinigen.core.constraints.example_solver.room.utils import mls_ccw
 from infinigen.core.constraints.example_solver.state_def import (
     ObjectState,
     RelationState,
@@ -43,9 +48,6 @@ from infinigen.core.tagging import PREFIX
 from infinigen.core.tags import Semantics
 from infinigen.core.util import blender as butil
 from infinigen.core.util.random import random_general as rg
-
-from .base import RoomGraph, room_type, valid_rooms
-from .utils import mls_ccw
 
 logger = logging.getLogger(__name__)
 
@@ -178,12 +180,14 @@ def max_mls(mls):
             coords.append((x, y, x_, y_))
     return coords[np.argmax(lengths)]
 
+
 @dataclass
 class Opening:
-    position: Tuple[float,float,float,float] # x1, y1, x2, y2
-    type: str # 'door' or 'window'
-    connected_rooms: List[str] # room names this opening connects/belongs to
+    position: Tuple[float, float, float, float]  # x1, y1, x2, y2
+    type: str  # 'door' or 'window'
+    connected_rooms: List[str]  # room names this opening connects/belongs to
     name: str = None  # optional custom name
+
 
 @gin.configurable
 class BlueprintSolidifier:
@@ -211,7 +215,7 @@ class BlueprintSolidifier:
             else:
                 yield (k,), cs
 
-    def solidify(self, state):
+    def solidify(self, state, openings):
         wt = self.constants.wall_thickness
         segments = {k: obj_st.polygon for k, obj_st in valid_rooms(state)}
         shared_edges = {
@@ -223,6 +227,13 @@ class BlueprintSolidifier:
             r.target_name: mls_ccw(canonicalize_mls(r.value), state, r.target_name)
             for r in state[exterior].relations
         }
+
+        for opening in openings:
+            if opening.type == "door":
+                logger.debug(f"\nProcessing door: {opening}\n")
+            else:
+                logger.debug(f"\nProcessing other components: {opening}\n")
+
         exterior_buffer = shapely.simplify(
             state[exterior].polygon.buffer(-wt / 2 - _eps, join_style="mitre"), 1e-3
         )

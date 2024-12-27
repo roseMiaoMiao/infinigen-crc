@@ -16,18 +16,20 @@ logging.basicConfig(
 
 # import bpy
 import gin
+
+####debug for "gin config note override issue"############
+# gin.parse_config_file("fast_solve.gin")  # Load fast_solve.gin
+# gin.parse_config_file("singleroom.gin")  # Load singleroom.gin
+# print("\n\nLoaded configuration files:", gin.config.config_str(), "\n\n")
+# print("compose_indoors.solve_steps_large:", gin.query_parameter("compose_indoors.solve_steps_large"))
 import numpy as np
 
 # import shapely.geometry as sg
 from floorplan_builder import FloorPlanStateBuilder
 
-from infinigen import repo_root
 from infinigen.assets import lighting
-from infinigen.assets.materials import invisible_to_camera
 from infinigen.assets.objects.wall_decorations.skirting_board import make_skirting_board
-from infinigen.assets.placement.floating_objects import FloatingObjectPlacement
-from infinigen.assets.utils.decorate import read_co
-from infinigen.core import execute_tasks, init, placement, surface, tagging
+from infinigen.core import execute_tasks, init, placement, surface
 from infinigen.core import tags as t
 from infinigen.core.constraints import checks
 from infinigen.core.constraints import constraint_language as cl
@@ -39,27 +41,16 @@ from infinigen.core.constraints.example_solver import (
     state_def,
 )
 from infinigen.core.constraints.example_solver.room import decorate as room_dec
-from infinigen.core.placement import camera as cam_util
 from infinigen.core.util import blender as butil
 from infinigen.core.util import pipeline
-from infinigen.core.util.camera import points_inview
-from infinigen.core.util.imu import save_imu_tum_files
-from infinigen.core.util.test_utils import (
-    import_item,
-    load_txt_list,
-)
 from infinigen.terrain import Terrain
 from infinigen_examples import (
-    floorplan_builder,
     generate_nature,  # noqa F401 # needed for nature gin configs to load  # noqa F401 # needed for nature gin configs to load
 )
 from infinigen_examples.constraints import home as home_constraints
 from infinigen_examples.constraints import util as cu
 from infinigen_examples.util.generate_indoors_util import (
     apply_greedy_restriction,
-    create_outdoor_backdrop,
-    hide_other_rooms,
-    place_cam_overhead,
     restrict_solving,
 )
 
@@ -186,8 +177,8 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
 
     solver = Solver(output_folder=output_folder)
 
-    """def solve_rooms():
-        return solver.solve_rooms(scene_seed, consgraph_rooms, stages["rooms"])"""
+    # def solve_rooms():
+    #     return solver.solve_rooms(scene_seed, consgraph_rooms, stages["rooms"])
 
     def solve_rooms():
         # Create and configure builder with consgraph
@@ -219,6 +210,10 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
             stages[stage_name], state, all_vars, limits
         )
         for i, vars in enumerate(assigments):
+            #####debug for "gin config note override issue"############
+            logger.info(
+                f"Using solve_steps_{group}: {overrides[f'solve_steps_{group}']}"
+            )
             solver.solve_objects(
                 consgraph,
                 stages[stage_name],
@@ -242,7 +237,7 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
         )
     ]
     solved_bound_points = np.concatenate([butil.bounds(r) for r in solved_rooms])
-    solved_bbox = (
+    _solved_bbox = (
         np.min(solved_bound_points, axis=0),
         np.max(solved_bound_points, axis=0),
     )
@@ -255,7 +250,7 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
     )
     house_bbox = (np.min(house_bbox, axis=0), np.max(house_bbox, axis=0))
 
-    camera_rigs = placement.camera.spawn_camera_rigs()
+    _camera_rigs = placement.camera.spawn_camera_rigs()
 
     """def pose_cameras():
         nonroom_objs = [
@@ -315,9 +310,9 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
         solve_stage_name("obj_ontop_obj", "small", addition_weight_scalar=3)
         solve_stage_name("obj_on_support", "small", restrict_moves=["addition"])
 
-    p.run_stage("solve_small", solve_small, use_chance=False, default=state)"""
+    p.run_stage("solve_small", solve_small, use_chance=False, default=state)
 
-    solver.optim.save_stats(output_folder / "optim_records.csv")
+    solver.optim.save_stats(output_folder / "optim_records.csv")"""
 
     p.run_stage(
         "populate_assets", populate.populate_state_placeholders, state, use_chance=False
@@ -382,7 +377,7 @@ def compose_indoors(output_folder: Path, scene_seed: int, **overrides):
     )
 
     rooms_meshed = butil.get_collection("placeholders:room_meshes")
-    rooms_split = room_dec.split_rooms(list(rooms_meshed.objects))
+    _rooms_split = room_dec.split_rooms(list(rooms_meshed.objects))
 
     """p.run_stage(
         "room_pillars",
@@ -587,5 +582,5 @@ if __name__ == "__main__":
                 continue
             if len(args.debug) == 0 or any(name.endswith(x) for x in args.debug):
                 logging.getLogger(name).setLevel(logging.DEBUG)
-    
+
     main(args)

@@ -6,10 +6,10 @@ compose_indoors.solve_steps_large = 300
 compose_indoors.solve_steps_medium = 200
 compose_indoors.solve_steps_small = 50
 
-SimulatedAnnealingSolver.initial_temp = 1 
-SimulatedAnnealingSolver.final_temp = 0.0001
+SimulatedAnnealingSolver.initial_temp = 3
+SimulatedAnnealingSolver.final_temp = 0.001
 SimulatedAnnealingSolver.finetune_pct = 0.15
-SimulatedAnnealingSolver.max_invalid_candidates = 10
+SimulatedAnnealingSolver.max_invalid_candidates = 5
 
 configure_render_cycles.num_samples = 16000
 

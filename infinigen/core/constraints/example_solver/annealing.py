@@ -91,6 +91,8 @@ class SimulatedAnnealingSolver:
         logger.info(f"Total elapsed {path.stem} {self.stats[-1]['elapsed']:.2f}")
 
     def reset(self, max_iters):
+        ####debug for "gin config note override issue"############
+        logger.info(f"max_iterations set to: {max_iters}")
         self.curr_iteration = 0
         self.curr_result = None
         self.best_loss = None

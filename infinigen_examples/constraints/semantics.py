@@ -189,7 +189,6 @@ def home_asset_usage():
             seating.SofaFactory,
             static_assets.StaticSofaFactory,
             shelves.TVStandFactory,
-            seating.BedFactory,
         },
     )
 
@@ -289,8 +288,6 @@ def home_asset_usage():
         static_assets.StaticShelfFactory,
         table_decorations.SinkFactory,
         tables.TableCocktailFactory,
-        seating.BedFrameFactory,
-        seating.BedFactory,
     }
 
     used_as[Semantics.PlaceholderBBox] = {
